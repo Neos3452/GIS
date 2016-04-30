@@ -22,7 +22,7 @@ add_library(${PROJECT_NAME}
     Vertex.cpp
 )
 
-target_include_directories(${PROJECT_NAME} SYSTEM
+target_include_directories(${PROJECT_NAME}
         PUBLIC ${PROJECT_SOURCE_DIR}
 )
 
@@ -54,7 +54,10 @@ if(Boost_FOUND)
             ${TESTEXE_NAME}.cpp
         )
         target_include_directories(${TESTEXE_NAME}
-                PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_INCLUDE_DIRECTORIES> ${Boost_INCLUDE_DIRS}
+                PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_INCLUDE_DIRECTORIES>
+        )
+        target_include_directories(${TESTEXE_NAME} SYSTEM
+                PRIVATE ${Boost_INCLUDE_DIRS}
         )
         target_link_libraries(${TESTEXE_NAME} ${PROJECT_NAME} ${Boost_LIBRARIES})
         add_test(${TESTEXE_NAME} ${TESTEXE_NAME})
