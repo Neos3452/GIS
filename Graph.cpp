@@ -63,9 +63,9 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
     const std::function<void(Vertex &)> createStack = [&](auto &v)
     {
         if (!marker(v)) {
+            marker(v) = true;
             std::for_each(v.neighbours.begin(), v.neighbours.end(), createStack);
             stack.emplace_back(v);
-            marker(v) = true;
         }
     };
 
@@ -86,6 +86,7 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
             const std::function<void(Vertex &)> findComponents = [&](auto &v)
             {
                 if (!marker(v)) {
+                    marker(v) = true;
                     component.emplace_back(v);
                     // here is the tricky part, we want to iterate in order previously stored in stack
                     // but over neighbours from tansposed graph. So we need to find vertex's neighbours of
@@ -94,7 +95,6 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
                     for (const auto &transposedNeighbour : transposed.vertices[vertexIndex(v)].neighbours) {
                         findComponents(vertices[transposed.vertexIndex(transposedNeighbour)]);
                     }
-                    marker(v) = true;
                 }
             };
             findComponents(v);
