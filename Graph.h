@@ -35,7 +35,7 @@ public:
 
     Graph transposedGraph() const;
 
-    // TODO: should this return vector of const refs?
+    // TODO: should this return vector of const refs? (this would allow this function to be const)
     std::vector<Vertex::VerticesRefsVector> findStronglyConntectedComponents();
 
 private:

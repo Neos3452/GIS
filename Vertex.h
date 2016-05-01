@@ -10,13 +10,14 @@ public:
     using VerticesRefsVector = std::vector<std::reference_wrapper<Vertex>>;
 
     Vertex() = default;
+    explicit Vertex(std::string label) : label(std::move(label)) {}
     Vertex(const Vertex &other) : Vertex(other, NoNeighbours) { neighbours = other.neighbours; }
     Vertex & operator =(const Vertex &) = default;
     Vertex(Vertex &&) = default;
     Vertex & operator =(Vertex &&) = default;
     ~Vertex() = default;
 
-    Vertex copyWithoutNeighbours() const {
+    inline Vertex copyWithoutNeighbours() const {
         return Vertex(*this, NoNeighbours);
     }
 

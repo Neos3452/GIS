@@ -1,10 +1,18 @@
 #define BOOST_TEST_MODULE Vertex
 #include <boost/test/included/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(first_test)
+#include "Vertex.h"
+
+using namespace gis;
+
+BOOST_AUTO_TEST_CASE(CopyWithoutNeighbours)
 {
-    int i = 1;
-    BOOST_TEST(i);
-    BOOST_TEST(i == 1);
+    Vertex first("first");
+    first.neighbours.emplace_back(first);
+    BOOST_TEST(first.label == "first");
+
+    Vertex second = first.copyWithoutNeighbours();
+    BOOST_TEST(first.label == second.label);
+    BOOST_TEST(second.neighbours.size() == 0);
 }
 
