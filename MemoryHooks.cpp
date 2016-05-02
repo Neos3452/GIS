@@ -6,20 +6,28 @@
 #include <unordered_map>
 
 /*
- * Just add this file into your compilation unit and when you are ready to
- * start measuring set gEnableHeapMemoryMeasurement to true. When you are done
- * set it back to false.
- *
- * You can reset measured data between measurements by manually setting
- * trackers manually.
- *
- * Multithreaded not supported.
- *
- * TODO: a way to handle deallocations which happens during the measurement but
+ * TODO: a way to handle deallocations which happened during the measurement but
  *       allocation was not recorded. Possible solution is to enable hashmap
  *       to record everything, but track memory only for measurement ie. mark
  *       other as irrelevant. (One example of this is some unordered_map rehash)
  */
+
+namespace memory_measure {
+
+// This should really be thread_local, but osx clang does not support it...
+uintptr_t gMaximumStackSize = 0;
+
+uintptr_t getCurrentStackSize()
+{
+    char marker;
+    // old frame pointer and pc, anything else?
+    return reinterpret_cast<uintptr_t>((&marker) - sizeof(char *) * 2);
+}
+
+void updateMaximumStackSize()
+{
+    gMaximumStackSize = std::max(gMaximumStackSize, getCurrentStackSize());
+}
 
 bool gEnableHeapMemoryMeasurement = false;
 size_t gCurrentUsedHeapMemory = 0;
@@ -32,7 +40,7 @@ size_t gTotalFreedFlippedOver = 0;
 
 static std::unordered_map<void *, size_t> gPtrToSizeMap;
 
-void resetMemoryMeasurments()
+void resetHeapMemoryMeasurments()
 {
     gPtrToSizeMap.clear();
     gCurrentUsedHeapMemory = 0;
@@ -42,6 +50,10 @@ void resetMemoryMeasurments()
     gTotalFreedHeapMemory = 0;
     gTotalFreedFlippedOver = 0;
 }
+
+} // namespace memory_measure
+
+using namespace memory_measure;
 
 void* operator new(std::size_t sz) throw(std::bad_alloc)
 {

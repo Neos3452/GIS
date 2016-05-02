@@ -17,13 +17,30 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-add_library(${PROJECT_NAME}
+set(SOURCES
     Graph.cpp
     Vertex.cpp
 )
 
+add_library(${PROJECT_NAME}
+    ${SOURCES}
+)
+
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${PROJECT_SOURCE_DIR}
+)
+
+add_library(${PROJECT_NAME}_mem
+    MemoryHooks.cpp
+    ${SOURCES}
+)
+
+target_include_directories(${PROJECT_NAME}_mem
+        PUBLIC ${PROJECT_SOURCE_DIR}
+)
+
+target_compile_definitions(${PROJECT_NAME}_mem
+        PUBLIC GIS_MEASURE_STACK=1
 )
 
 ### Main
@@ -49,10 +66,6 @@ if(Boost_FOUND)
         memory_hooks
     )
 
-    set(memory_hooks_SOURCES
-        MemoryHooks.cpp
-    )
-
     foreach(TEST_NAME ${TEST_NAMES})
         set(TESTEXE_NAME "tests_${TEST_NAME}")
         add_executable(${TESTEXE_NAME}
@@ -65,7 +78,10 @@ if(Boost_FOUND)
         target_include_directories(${TESTEXE_NAME} SYSTEM
                 PRIVATE ${Boost_INCLUDE_DIRS}
         )
-        target_link_libraries(${TESTEXE_NAME} ${PROJECT_NAME} ${Boost_LIBRARIES})
+        target_compile_definitions(${TESTEXE_NAME}
+                PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_COMPILE_DEFINITIONS>
+        )
+        target_link_libraries(${TESTEXE_NAME} ${PROJECT_NAME}_mem ${Boost_LIBRARIES})
         add_test(${TESTEXE_NAME} ${TESTEXE_NAME})
     endforeach()
 else()

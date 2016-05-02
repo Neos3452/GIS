@@ -1,3 +1,13 @@
+#ifdef GIS_MEASURE_STACK
+#include "MemoryHooks.h"
+#endif
+
+#ifdef GIS_MEASURE_STACK
+#define GIS_UPDATE_MAX_STACK_SIZE memory_measure::updateMaximumStackSize()
+#else
+#define GIS_UPDATE_MAX_STACK_SIZE
+#endif
+
 #include "Graph.h"
 
 #include <cassert>
@@ -14,6 +24,7 @@ size_t Graph::vertexIndex(const Vertex &v) const
     assert(std::addressof(v) >= vertices.data());
     const size_t index = std::addressof(v) - vertices.data();
     assert(index < vertices.size());
+    GIS_UPDATE_MAX_STACK_SIZE;
     return index;
 }
 
@@ -31,6 +42,7 @@ Graph Graph::transposedGraph() const
     // so the indices are the same
     auto vit = vertices.cbegin();
     std::generate_n(std::back_inserter(result.vertices), vertices.size(), [&vit](){
+        GIS_UPDATE_MAX_STACK_SIZE;
         return (vit++)->copyWithoutNeighbours();
     });
     assert(vertices.size() == result.vertices.size());
@@ -43,9 +55,12 @@ Graph Graph::transposedGraph() const
 
         for (const Vertex &n : v.neighbours) {
             result.vertices[vertexIndex(n)].neighbours.emplace_back(resultVertex);
+            GIS_UPDATE_MAX_STACK_SIZE;
         }
+        GIS_UPDATE_MAX_STACK_SIZE;
     }
 
+    GIS_UPDATE_MAX_STACK_SIZE;
     return result;
 }
 
@@ -55,6 +70,7 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
     std::fill(markers.get(), markers.get() + vertices.size(), false);
 
     const auto marker = [&markers, this](const Vertex &v) -> auto& {
+        GIS_UPDATE_MAX_STACK_SIZE;
         return *(markers.get() + vertexIndex(v));
     };
 
@@ -67,6 +83,7 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
             std::for_each(v.neighbours.begin(), v.neighbours.end(), createStack);
             stack.emplace_back(v);
         }
+        GIS_UPDATE_MAX_STACK_SIZE;
     };
 
     // random means first or truly random?
@@ -96,11 +113,14 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
                         findComponents(vertices[transposed.vertexIndex(transposedNeighbour)]);
                     }
                 }
+                GIS_UPDATE_MAX_STACK_SIZE;
             };
             findComponents(v);
+            GIS_UPDATE_MAX_STACK_SIZE;
         }
     });
 
+    GIS_UPDATE_MAX_STACK_SIZE;
     return result;
 }
 

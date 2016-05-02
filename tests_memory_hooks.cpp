@@ -7,18 +7,11 @@
 #include <memory>
 #include <vector>
 
-struct NewDeleteMeasurmentsRestart {
-    NewDeleteMeasurmentsRestart() {
-        gEnableHeapMemoryMeasurement = false;
-        assert(gCurrentUsedHeapMemory == 0);
-        gMaximumUsedHeapMemory = 0;
-        gTotalAllocatedHeapMemory = 0;
-        gTotalAllocatedFlippedOver = 0;
-        gTotalFreedHeapMemory = 0;
-        gTotalFreedFlippedOver = 0;
-    }
+using namespace memory_measure;
 
-    ~NewDeleteMeasurmentsRestart() {
+struct MeasurementsRestart {
+    ~MeasurementsRestart()
+    {
         gEnableHeapMemoryMeasurement = false;
         assert(gCurrentUsedHeapMemory == 0);
         gMaximumUsedHeapMemory = 0;
@@ -26,10 +19,11 @@ struct NewDeleteMeasurmentsRestart {
         gTotalAllocatedFlippedOver = 0;
         gTotalFreedHeapMemory = 0;
         gTotalFreedFlippedOver = 0;
+        gMaximumStackSize = 0;
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(CustomNewDelete, NewDeleteMeasurmentsRestart)
+BOOST_FIXTURE_TEST_SUITE(MemoryHooks, MeasurementsRestart)
 
 BOOST_AUTO_TEST_CASE(NotEnabling)
 {
@@ -230,6 +224,39 @@ BOOST_AUTO_TEST_CASE(StdVectorAllocations)
     BOOST_TEST(gTotalAllocatedFlippedOver == 0);
     BOOST_TEST(gTotalFreedHeapMemory == sizeof(IntVector) + sizeof(int)*100);
     BOOST_TEST(gTotalFreedFlippedOver == 0);
+}
+
+__attribute__((noinline)) void dummyFunc()
+{
+    int var;
+    (void(var));
+    updateMaximumStackSize();
+}
+
+__attribute__((noinline)) void dummyFunc2(uintptr_t &base)
+{
+    int var;
+    (void(var));
+    updateMaximumStackSize();
+    BOOST_TEST(base > gMaximumStackSize);
+    base = getCurrentStackSize();
+    dummyFunc();
+}
+
+BOOST_AUTO_TEST_CASE(FuncStackSize)
+{
+    BOOST_TEST(gMaximumStackSize == 0);
+    const auto base = getCurrentStackSize();
+    dummyFunc();
+    BOOST_TEST(base > gMaximumStackSize);
+}
+
+BOOST_AUTO_TEST_CASE(DoubleFuncStackSize)
+{
+    BOOST_TEST(gMaximumStackSize == 0);
+    auto base = getCurrentStackSize();
+    dummyFunc2(base);
+    BOOST_TEST(base > gMaximumStackSize);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
