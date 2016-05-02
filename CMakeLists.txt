@@ -46,12 +46,18 @@ if(Boost_FOUND)
     set(TEST_NAMES
         graph
         vertex
+        memory_hooks
+    )
+
+    set(memory_hooks_SOURCES
+        MemoryHooks.cpp
     )
 
     foreach(TEST_NAME ${TEST_NAMES})
         set(TESTEXE_NAME "tests_${TEST_NAME}")
         add_executable(${TESTEXE_NAME}
             ${TESTEXE_NAME}.cpp
+            ${${TEST_NAME}_SOURCES}
         )
         target_include_directories(${TESTEXE_NAME}
                 PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_INCLUDE_DIRECTORIES>
