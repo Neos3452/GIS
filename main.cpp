@@ -1,56 +1,98 @@
 #include "Graph.h"
 
 #include <iostream>
+#include <boost/program_options.hpp>
+#include <chrono>
+#include <numeric>
+#include "GraphGenerator.h"
+#include "Util.h"
+#include "MemoryHooks.h"
 
-void printErrorMsg(const std::ios_base::failure &fail)
-{
-    std::cerr << "Error while processing input (" << fail.code() << "): " << fail.what() << std::endl;
+namespace po = boost::program_options;
+
+void printResult(const std::vector<gis::Vertex::VerticesRefsVector>& scc, std::ostream& os = std::cout) {
+    for (const auto &comp : scc) {
+        os << "{";
+        for (const gis::Vertex &v : comp) {
+            os << v.label << ",";
+        }
+        os << "}, ";
+    }
+    os << std::endl;
 }
 
-int main()
-{
-    std::cin.sync_with_stdio(false);
-    std::cin.exceptions(std::istream::badbit | std::istream::failbit | std::istream::eofbit);
+util::SingleResult solve(gis::Graph& g, bool verbose, std::ostream& os = std::cout) {
+    auto h1 = memory_measure::getCurrentStackSize();
+    auto t1 = std::chrono::high_resolution_clock::now();
+    const auto scc = g.findStronglyConntectedComponents();
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto stackSizeDiff = h1 - memory_measure::gMaximumStackSize;
+
+    if (verbose) {
+        printResult(scc, os);
+    }
+
+    return util::SingleResult(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count(),
+                              stackSizeDiff,
+                              std::accumulate(g.vertices.begin(), g.vertices.end(), 0u,
+                                              [](unsigned long a, const gis::Vertex& b) {
+                                                  return a + b.neighbours.size();}));
+}
+
+int main(int ac, char* av[]) {
     try {
-        while(true) {
-            size_t verticesCount;
-            std::cin >> verticesCount;
-            gis::Graph g;
-            g.vertices.reserve(verticesCount);
-            unsigned id = 1;
-            std::generate_n(std::back_inserter(g.vertices), verticesCount, [&id](){
-               return gis::Vertex(std::to_string(id++));
-            });
-            try {
-                size_t edgesCount;
-                std::cin >> edgesCount;
-                for (size_t i = 0; i < edgesCount; ++i) {
-                    size_t from, to;
-                    std::cin >> from >> to;
-                    if (from > verticesCount || to > verticesCount || from < 1 || to < 1) {
-                        throw std::ios_base::failure("Vertex index out of bounds");
-                    }
-                    g.vertices[(from-1)].neighbours.emplace_back(g.vertices[(to-1)]);
-                }
-                const auto scc = g.findStronglyConntectedComponents();
-                for (const auto &comp : scc) {
-                    std::cout << "{";
-                    for (const gis::Vertex &v : comp) {
-                        std::cout << v.label << ",";
-                    }
-                    std::cout << "}, ";
-                }
-                std::cout << std::endl;
-            } catch (const std::ios_base::failure &fail) {
-                // TODO: actually exception message is very poor error message
-                printErrorMsg(fail);
-                break;
+        po::options_description commandLineOptions("Strongly connected component finder");
+        commandLineOptions.add_options()
+                ("help", "produce help message")
+                ("stdin", "read graph from standard input "
+                        "<vertices_count> "
+                        "<edges_count> "
+                        "<from_id> <to_id> #<edges_count> times")
+                ("numberOfTests,t", po::value<unsigned>()->default_value(10),
+                 "number of tests with random generator to perform")
+                ("numberOfVertices,n", po::value<unsigned>()->default_value(10),
+                "number of vertices in generated graph")
+                ("probability,p", po::value<double>()->default_value(0.5),
+                "probability of generating particular edge")
+                ("verbose,v", "enables verbose mode")
+                ("autoTest", "generate graphs of given size and run algorithm")
+                ("resultFile", po::value<std::string>(), "name of file where results will be saved");
+
+        po::variables_map variablesMap;
+        po::store(po::command_line_parser(ac, av).options(commandLineOptions).run(), variablesMap);
+        po::notify(variablesMap);
+
+        if (variablesMap.count("help")) {
+            std::cout << commandLineOptions << "\n";
+            return 0;
+        }
+
+        if (variablesMap.count("stdin")) {
+            auto g = generator::generateFromStream();
+            solve(g, variablesMap.count("verbose") > 0);
+
+        } else if (variablesMap.count("autoTest")) {
+            auto tc = variablesMap["numberOfTests"].as<unsigned>();
+            auto n = variablesMap["numberOfVertices"].as<unsigned>();
+            auto p = variablesMap["probability"].as<double>();
+            std::vector<util::SingleResult> results;
+            results.reserve(tc);
+
+            while (tc--) {
+                auto g = generator::generateRandom(n, p);
+                results.push_back(solve(g, variablesMap.count("verbose") > 0));
             }
+
+            if (variablesMap.count("resultFile")) {
+                util::writeResultsToCSV(results, variablesMap["resultFile"].as<std::string>());
+            }
+
+            auto mean = util::computeMeanValue(results);
+            std::cout << mean.duration << " " << mean.stackDiff << " " << mean.edges << std::endl;
         }
-    } catch (const std::ios_base::failure &fail) {
-        if (!std::cin.eof()) {
-            printErrorMsg(fail);
-        }
+
+    } catch (const std::exception& ex) {
+        std::cerr << "Error while processing input :" << ex.what() << std::endl;
     }
 }
 

@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.1.0)
 
 set(CMAKE_CXX_STANDARD 14)
 
+find_package(Boost COMPONENTS graph unit_test_framework program_options)
+
 if(MSVC)
     # Force to always compile with W4
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -15,7 +17,7 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror")
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 
 set(SOURCES
     Graph.cpp
@@ -51,40 +53,33 @@ add_executable(${EXE_NAME}
 target_include_directories(${EXE_NAME}
         PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_INCLUDE_DIRECTORIES>
 )
-target_link_libraries(${EXE_NAME} ${PROJECT_NAME})
+target_link_libraries(${EXE_NAME} ${PROJECT_NAME}_mem ${Boost_LIBRARIES})
 
 ### Tests
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs otherwise there is a segfault
-set(Boost_USE_MULTITHREADED      ON)
-find_package(Boost COMPONENTS graph unit_test_framework)
-if(Boost_FOUND)
-    enable_testing()
+enable_testing()
 
-    set(TEST_NAMES
-        graph
-        vertex
-        memory_hooks
+set(TEST_NAMES
+    graph
+    vertex
+    memory_hooks
+)
+
+foreach(TEST_NAME ${TEST_NAMES})
+    set(TESTEXE_NAME "tests_${TEST_NAME}")
+    add_executable(${TESTEXE_NAME}
+        ${TESTEXE_NAME}.cpp
+        ${${TEST_NAME}_SOURCES}
     )
-
-    foreach(TEST_NAME ${TEST_NAMES})
-        set(TESTEXE_NAME "tests_${TEST_NAME}")
-        add_executable(${TESTEXE_NAME}
-            ${TESTEXE_NAME}.cpp
-            ${${TEST_NAME}_SOURCES}
-        )
-        target_include_directories(${TESTEXE_NAME}
-                PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_INCLUDE_DIRECTORIES>
-        )
-        target_include_directories(${TESTEXE_NAME} SYSTEM
-                PRIVATE ${Boost_INCLUDE_DIRS}
-        )
-        target_compile_definitions(${TESTEXE_NAME}
-                PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_COMPILE_DEFINITIONS>
-        )
-        target_link_libraries(${TESTEXE_NAME} ${PROJECT_NAME}_mem ${Boost_LIBRARIES})
-        add_test(${TESTEXE_NAME} ${TESTEXE_NAME})
-    endforeach()
-else()
-    message(warning "Missing boost tests module, building without tests")
-endif()
+    target_include_directories(${TESTEXE_NAME}
+            PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_INCLUDE_DIRECTORIES>
+    )
+    target_include_directories(${TESTEXE_NAME} SYSTEM
+            PRIVATE ${Boost_INCLUDE_DIRS}
+    )
+    target_compile_definitions(${TESTEXE_NAME}
+            PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_COMPILE_DEFINITIONS>
+    )
+    target_link_libraries(${TESTEXE_NAME} ${PROJECT_NAME}_mem ${Boost_LIBRARIES})
+    add_test(${TESTEXE_NAME} ${TESTEXE_NAME})
+endforeach()
 
