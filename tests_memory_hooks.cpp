@@ -238,7 +238,7 @@ __attribute__((noinline)) void dummyFunc2(uintptr_t &base)
     int var;
     (void(var));
     updateMaximumStackSize();
-    BOOST_TEST(base > gMaximumStackSize);
+    BOOST_TEST(gMaximumStackSize > base);
     base = getCurrentStackSize();
     dummyFunc();
 }
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(FuncStackSize)
     BOOST_TEST(gMaximumStackSize == 0);
     const auto base = getCurrentStackSize();
     dummyFunc();
-    BOOST_TEST(base > gMaximumStackSize);
+    BOOST_TEST(gMaximumStackSize > base);
 }
 
 BOOST_AUTO_TEST_CASE(DoubleFuncStackSize)
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(DoubleFuncStackSize)
     BOOST_TEST(gMaximumStackSize == 0);
     auto base = getCurrentStackSize();
     dummyFunc2(base);
-    BOOST_TEST(base > gMaximumStackSize);
+    BOOST_TEST(gMaximumStackSize > base);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
