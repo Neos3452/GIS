@@ -22,18 +22,22 @@ void printResult(const std::vector<gis::Vertex::VerticesRefsVector>& scc, std::o
 }
 
 util::SingleResult solve(gis::Graph& g, bool verbose, std::ostream& os = std::cout) {
-    auto h1 = memory_measure::getCurrentStackSize();
-    auto t1 = std::chrono::high_resolution_clock::now();
+    const auto h1 = memory_measure::getCurrentStackSize();
+    const auto t1 = std::chrono::high_resolution_clock::now();
+    memory_measure::gEnableHeapMemoryMeasurement = true;
     const auto scc = g.findStronglyConntectedComponents();
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto stackSizeDiff = h1 - memory_measure::gMaximumStackSize;
+    memory_measure::gEnableHeapMemoryMeasurement = false;
+    const auto t2 = std::chrono::high_resolution_clock::now();
+    const auto heapSize = memory_measure::gMaximumUsedHeapMemory;
+    const auto stackSizeDiff = memory_measure::gMaximumStackSize - h1;
+    memory_measure::resetHeapMemoryMeasurements();
 
     if (verbose) {
         printResult(scc, os);
     }
 
     return util::SingleResult(std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count(),
-                              stackSizeDiff,
+                              stackSizeDiff + heapSize,
                               std::accumulate(g.vertices.begin(), g.vertices.end(), 0u,
                                               [](unsigned long a, const gis::Vertex& b) {
                                                   return a + b.neighbours.size();}));

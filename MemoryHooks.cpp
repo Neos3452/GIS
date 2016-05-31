@@ -21,7 +21,7 @@ uintptr_t getCurrentStackSize()
 {
     char marker;
     // old frame pointer and pc, anything else?
-    return reinterpret_cast<uintptr_t>((&marker) - sizeof(char *) * 2);
+    return std::numeric_limits<uintptr_t>::max() - reinterpret_cast<uintptr_t>((&marker) - sizeof(char *) * 2);
 }
 
 void updateMaximumStackSize()
@@ -40,7 +40,7 @@ size_t gTotalFreedFlippedOver = 0;
 
 static std::unordered_map<void *, size_t> gPtrToSizeMap;
 
-void resetHeapMemoryMeasurments()
+void resetHeapMemoryMeasurements()
 {
     gPtrToSizeMap.clear();
     gCurrentUsedHeapMemory = 0;

@@ -33,7 +33,7 @@ extern size_t gTotalAllocatedFlippedOver;
 extern size_t gTotalFreedHeapMemory;
 extern size_t gTotalFreedFlippedOver;
 
-void resetMemoryMeasurments();
+void resetHeapMemoryMeasurements();
 
 
 extern uintptr_t gMaximumStackSize;
