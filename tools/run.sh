@@ -48,7 +48,7 @@ function benchmark() {
     touch $BENCHMARK_RESULT_CSV_FILE
     echo "time,mem,edges" >> $BENCHMARK_RESULT_CSV_FILE
 
-    for i in {10000..10000..100}
+    for i in {100..5000..100}
     do
         echo "Test with $i nodes"
         $BUILD_DIR"/"$BIN_NAME --autoTest -n $i -t 10 -p 0.35 --resultFile $BENCHMARK_PARTIAL_DIR"/result_$i.csv" >> $BENCHMARK_RESULT_TXT_FILE
@@ -76,7 +76,7 @@ while getopts ":cbxhtm" opt; do
         echo "-b build"
         echo "-x clear"
         echo "-t run unit tests"
-        echo "-b run benchmark"
+        echo "-m run benchmark"
         ;;
     \?) echo "unknown option"
         ;;
