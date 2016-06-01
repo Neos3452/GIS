@@ -51,7 +51,7 @@ namespace generator {
 
         for (size_t i = 0; i < edgesCount; ++i) {
             size_t from, to;
-            std::cin >> from >> to;
+            is >> from >> to;
             if (from >= verticesCount || to >= verticesCount ) {
                 throw std::ios_base::failure("Vertex index out of bounds");
             }

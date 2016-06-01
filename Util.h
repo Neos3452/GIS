@@ -37,7 +37,7 @@ namespace util {
     void writeResultsToCSV(const std::vector<SingleResult>& result, const std::string& filename) {
         std::ofstream resultFile;
         resultFile.open(filename);
-        resultFile << "duration,stackDiff,edges" << std::endl;
+        resultFile << "time,mem,edges" << std::endl;
         for (const auto& r : result) {
             resultFile << r.duration <<
                     "," << r.stackDiff <<

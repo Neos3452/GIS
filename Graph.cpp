@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <deque>
+#include <algorithm>
 #include <functional>
 #include <memory>
 

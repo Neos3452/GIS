@@ -1,0 +1,11 @@
+#ifndef STRONGLYCONNECTEDCOMPONENTSFINDER_CONFIG_H
+#define STRONGLYCONNECTEDCOMPONENTSFINDER_CONFIG_H
+
+#include <string>
+
+std::string acceptanceTestsResourcesDir() {
+    std::string path("@CMAKE_CURRENT_SOURCE_DIR@");
+    return path + "/acceptance/";
+}
+
+#endif //STRONGLYCONNECTEDCOMPONENTSFINDER_CONFIG_H
