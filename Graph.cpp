@@ -24,7 +24,7 @@ using VertexStack = std::deque<std::reference_wrapper<Vertex>>;
 
 size_t Graph::vertexIndex(const Vertex &v) const
 {
-    // Just get the address of a vertex and substract it's array's base (vector::data)
+    // Just get the address of a vertex and subtract it's array's base (vector::data)
     assert(std::addressof(v) >= vertices.data());
     const size_t index = static_cast<size_t>(std::addressof(v) - vertices.data());
     assert(index < vertices.size());
@@ -34,7 +34,7 @@ size_t Graph::vertexIndex(const Vertex &v) const
 
 void Graph::rewireReferences(const Graph &old)
 {
-    // Get the refernce to point to vertex of the same index but in the new graph.
+    // Get the reference to point to vertex of the same index but in the new graph.
     for (auto &v : vertices) {
         for (auto &n : v.neighbours) {
             n = vertices[old.vertexIndex(n)];
@@ -48,7 +48,7 @@ Graph Graph::transposedGraph() const
     Graph result;
     result.vertices.reserve(vertices.size());
 
-    // Indicies will be the same, so we can copy all the verticies to the new graph
+    // Indices will be the same, so we can copy all the vertices to the new graph
     auto vit = vertices.cbegin();
     std::generate_n(std::back_inserter(result.vertices), vertices.size(), [&vit](){
         GIS_UPDATE_MAX_STACK_SIZE;
@@ -90,7 +90,7 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
 
     // createStack fills the stack using dfs as in SCC algorithm. A vertex is
     // added when all it's neighbours has been visited.
-    // merkers keep track of visited verticies.
+    // markers keep track of visited vertices.
     const std::function<void(Vertex &)> createStack = [&](auto &v)
     {
         if (!marker(v)) {
@@ -124,7 +124,7 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
                     marker(v) = true;
                     component.emplace_back(v);
                     // Here is the tricky part, we want to iterate in order previously stored in stack
-                    // but over neighbours from tansposed graph. So we need to find vertex's neighbours of
+                    // but over neighbours from transposed graph. So we need to find vertex's neighbours of
                     // transposed graph using index from current graph and then use the neighbour to get
                     // index from transposed graph so we can use vertex from original graph.
                     for (const auto &transposedNeighbour : transposed.vertices[vertexIndex(v)].neighbours) {

@@ -8,7 +8,7 @@ CURRENT_DIR=`pwd`
 BUILD_DIR="$CURRENT_DIR/../build"
 BIN_NAME="find_strongly_connected_components"
 SRC_DIR="$CURRENT_DIR/.."
-BOOST_PATH="/home/przemek/Development/boost_1_60_0/"
+BOOST_PATH=""
 
 function build() {
     cd $BUILD_DIR
@@ -26,7 +26,7 @@ function clear() {
         rm -rf $BUILD_DIR
     fi
 
-    CMAKE_ADDITIONAL_OPTIONS="-DBOOST_ROOT=$BOOST_PATH"
+    CMAKE_ADDITIONAL_OPTIONS=""
     mkdir -p $BUILD_DIR
     cd $BUILD_DIR
     cmake $SRC_DIR $CMAKE_ADDITIONAL_OPTIONS

@@ -75,7 +75,7 @@ void* operator new(std::size_t sz) throw(std::bad_alloc)
         new_handler globalHandler = set_new_handler(0);
         set_new_handler(globalHandler);
 
-        if (globalHandler) {             //If new_hander is registered call it
+        if (globalHandler) {             //If new_handler is registered call it
              (*globalHandler)();
         } else {
              throw std::bad_alloc();     //No handler is registered throw an exception

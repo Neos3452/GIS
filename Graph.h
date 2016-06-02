@@ -7,7 +7,7 @@
 namespace gis {
 
 /*
- * Graph holds (physically) all verticies that belong to it. This allows for
+ * Graph holds (physically) all vertices that belong to it. This allows for
  * very interesting manipulations using references only.
  */
 class Graph {
@@ -40,7 +40,7 @@ public:
     // Returns a new graph which is a transposition of this
     Graph transposedGraph() const;
 
-    // Returns list of stronly connected components.
+    // Returns list of strongly connected components.
     // Each component is a list of references to a vertex belonging to this component.
     std::vector<Vertex::VerticesRefsVector> findStronglyConntectedComponents();
 

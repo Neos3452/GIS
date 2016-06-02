@@ -10,6 +10,9 @@
 
 namespace po = boost::program_options;
 
+/**
+ * Simple print to std::cout
+ */
 void printResult(const std::vector<gis::Vertex::VerticesRefsVector>& scc, std::ostream& os = std::cout) {
     for (const auto &comp : scc) {
         os << "{";
@@ -21,6 +24,10 @@ void printResult(const std::vector<gis::Vertex::VerticesRefsVector>& scc, std::o
     os << std::endl;
 }
 
+/**
+ * Function responsible for calling Kosaraju's algorithm implmenetation.
+ * Measures time of execution, stack and heap memory used.
+ */
 util::SingleResult solve(gis::Graph& g, bool verbose, std::ostream& os = std::cout) {
     const auto h1 = memory_measure::getCurrentStackSize();
     const auto t1 = std::chrono::high_resolution_clock::now();

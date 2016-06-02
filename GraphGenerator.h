@@ -18,6 +18,9 @@ namespace generator {
     using RandomGraphGenerator =  boost::erdos_renyi_iterator<boost::minstd_rand, AdjList>;
     static boost::minstd_rand randomNumber(time(nullptr));
 
+    /**
+     * Generates random graph using Erdős–Rényi model.
+     */
     gis::Graph generateRandom(unsigned n, double p) {
         AdjList adjList(RandomGraphGenerator(randomNumber, n, p), RandomGraphGenerator(), n);
         gis::Graph graph;
@@ -35,6 +38,9 @@ namespace generator {
         return graph;
     }
 
+    /**
+     * Generates graph from input stream.
+     */
     gis::Graph generateFromStream(std::istream& is = std::cin) {
         gis::Graph g;
         size_t verticesCount;

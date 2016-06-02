@@ -8,6 +8,10 @@
 #include <fstream>
 
 namespace util {
+
+    /**
+     * Structure used for single result of automatic tests representation.
+     */
     struct SingleResult {
         unsigned long duration;
         unsigned long stackDiff;
@@ -20,6 +24,9 @@ namespace util {
                                                                                              edges{edges} { }
     };
 
+    /**
+     * Computes mean value from result set.
+     */
     SingleResult computeMeanValue(const std::vector<SingleResult>& resultVector) {
         unsigned long long int durationSum = 0;
         unsigned long long int stackDiffSum = 0;
@@ -34,6 +41,9 @@ namespace util {
         return SingleResult(durationSum / n, stackDiffSum / n, edgesSum / n);
     }
 
+    /**
+     * Writes results to csv file.
+     */
     void writeResultsToCSV(const std::vector<SingleResult>& result, const std::string& filename) {
         std::ofstream resultFile;
         resultFile.open(filename);
