@@ -6,10 +6,11 @@
 #include <unordered_map>
 
 /*
- * TODO: a way to handle deallocations which happened during the measurement but
- *       allocation was not recorded. Possible solution is to enable hashmap
- *       to record everything, but track memory only for measurement ie. mark
- *       other as irrelevant. (One example of this is some unordered_map rehash)
+ * TODO: A way to handle deallocations which happened during the measurement but
+ *       for which allocation was not recorded. Possible solution is to enable
+ *       hashmap to record everything from the start, but track memory only for
+ *       measurement. Ie. mark other allocations as irrelevant.
+ *       (One example of this is unordered_map rehash)
  */
 
 namespace memory_measure {
@@ -20,7 +21,7 @@ uintptr_t gMaximumStackSize = 0;
 uintptr_t getCurrentStackSize()
 {
     char marker;
-    // old frame pointer and pc, anything else?
+    // subtract old frame pointer and pc of this function, anything else?
     return std::numeric_limits<uintptr_t>::max() - reinterpret_cast<uintptr_t>((&marker) - sizeof(char *) * 2);
 }
 

@@ -15,4 +15,3 @@ BOOST_AUTO_TEST_CASE(CopyWithoutNeighbours)
     BOOST_TEST(first.label == second.label);
     BOOST_TEST(second.neighbours.size() == 0);
 }
-

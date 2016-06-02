@@ -6,6 +6,10 @@
 
 namespace gis {
 
+/*
+ * Graph holds (physically) all verticies that belong to it. This allows for
+ * very interesting manipulations using references only.
+ */
 class Graph {
 public:
     using VertexVector = std::vector<Vertex>;
@@ -33,13 +37,17 @@ public:
 
     ~Graph() = default;
 
+    // Returns a new graph which is a transposition of this
     Graph transposedGraph() const;
 
-    // TODO: should this return vector of const refs? (this would allow this function to be const)
+    // Returns list of stronly connected components.
+    // Each component is a list of references to a vertex belonging to this component.
     std::vector<Vertex::VerticesRefsVector> findStronglyConntectedComponents();
 
 private:
     Graph(const VertexVector &vertices) : vertices(vertices) {}
+
+    // Finds an index of a vertex which belongs to this graph
     size_t vertexIndex(const Vertex &) const;
 
     // Rewires neighbours after vertices has been copied from other graph
