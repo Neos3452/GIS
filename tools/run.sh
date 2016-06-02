@@ -26,7 +26,7 @@ function clear() {
         rm -rf $BUILD_DIR
     fi
 
-    CMAKE_ADDITIONAL_OPTIONS=""
+    CMAKE_ADDITIONAL_OPTIONS="-DBOOST_ROOT=$BOOST_PATH"
     mkdir -p $BUILD_DIR
     cd $BUILD_DIR
     cmake $SRC_DIR $CMAKE_ADDITIONAL_OPTIONS
