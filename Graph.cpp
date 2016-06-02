@@ -89,7 +89,7 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
     VertexStack stack;
 
     // createStack fills the stack using dfs as in SCC algorithm. A vertex is
-    // added when all it's neighbours has been visited.
+    // added when all it's neighbours have been visited.
     // markers keep track of visited vertices.
     const std::function<void(Vertex &)> createStack = [&](auto &v)
     {
