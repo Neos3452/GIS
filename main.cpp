@@ -80,7 +80,7 @@ int main(int ac, char* av[]) {
 
         if (variablesMap.count("stdin")) {
             auto g = generator::generateFromStream();
-            solve(g, variablesMap.count("verbose") > 0);
+            solve(g, true);
 
         } else if (variablesMap.count("autoTest")) {
             auto tc = variablesMap["numberOfTests"].as<unsigned>();
