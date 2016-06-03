@@ -116,18 +116,18 @@ std::vector<Vertex::VerticesRefsVector> Graph::findStronglyConntectedComponents(
             result.resize(result.size() + 1);
             auto &component = result.back();
 
-            const std::function<void(Vertex &)> findComponents = [&](auto &v)
+            const std::function<void(Vertex &)> findComponents = [&](auto &vertex)
             {
                 // If a vertex has already been visited, it means it already belongs to some component
                 // and we should consider it.
-                if (!marker(v)) {
-                    marker(v) = true;
-                    component.emplace_back(v);
+                if (!marker(vertex)) {
+                    marker(vertex) = true;
+                    component.emplace_back(vertex);
                     // Here is the tricky part, we want to iterate in order previously stored in stack
                     // but over neighbours from transposed graph. So we need to find vertex's neighbours of
                     // transposed graph using index from current graph and then use the neighbour to get
                     // index from transposed graph so we can use vertex from original graph.
-                    for (const auto &transposedNeighbour : transposed.vertices[vertexIndex(v)].neighbours) {
+                    for (const auto &transposedNeighbour : transposed.vertices[vertexIndex(vertex)].neighbours) {
                         findComponents(vertices[transposed.vertexIndex(transposedNeighbour)]);
                     }
                 }

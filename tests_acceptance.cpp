@@ -14,13 +14,14 @@ struct AcceptanceTestsFixture {
     const std::string acceptanceTestsBasePath;
     const std::string dagFile;
     const std::string dgFile;
+    const std::string dg2File;
     const std::string fullFile;
     const std::string noEdgesFile;
     const std::string parallelEdgesFile;
     const std::string scgFile;
 
     AcceptanceTestsFixture() : acceptanceTestsBasePath{acceptanceTestsResourcesDir()},
-                               dagFile{"tinyDAG.txt"}, dgFile{"tinyDG.txt"},
+                               dagFile{"tinyDAG.txt"}, dgFile{"tinyDG.txt"}, dg2File{"tinyDG2.txt"},
                                fullFile{"tinyFull.txt"}, noEdgesFile{"tinyNoEdges.txt"},
                                parallelEdgesFile{"tinyParallelEdges.txt"}, scgFile{"tinySCG.txt"} { }
 
@@ -77,6 +78,16 @@ BOOST_FIXTURE_TEST_SUITE(AcceptanceTests, AcceptanceTestsFixture)
                 {"0", "2", "3", "4", "5"}, {"1"}, {"6"}, {"7", "8"}, {"9", "10", "11", "12"}
         };
         auto g = readGraph(acceptanceTestsBasePath + dgFile);
+        auto scc = g.findStronglyConntectedComponents();
+        BOOST_REQUIRE(equal(scc, expected));
+    }
+
+    BOOST_AUTO_TEST_CASE(DG2_Graph)
+    {
+        std::vector<StringVec> expected = {
+                {"0", "1"}, {"2", "3", "4"}, {"5"}, {"6"}, {"7"}
+        };
+        auto g = readGraph(acceptanceTestsBasePath + dg2File);
         auto scc = g.findStronglyConntectedComponents();
         BOOST_REQUIRE(equal(scc, expected));
     }

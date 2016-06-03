@@ -12,7 +12,7 @@ BOOST_PATH=""
 
 function build() {
     cd $BUILD_DIR
-    make
+    make -j8
 }
 
 function clean() {
